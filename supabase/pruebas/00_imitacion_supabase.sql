@@ -1,4 +1,7 @@
--- Imitación mínima del entorno Supabase para probar el esquema
+-- Imitación mínima del entorno Supabase para probar el esquema.
+-- Como Supabase desde 2026, las tablas y funciones nuevas NO quedan accesibles
+-- solas: el esquema tiene que dar los permisos explícitamente.
+alter default privileges in schema public revoke execute on functions from public;
 do $$ begin create role anon nologin; create role authenticated nologin; create role service_role nologin bypassrls; exception when duplicate_object then null; end $$;
 create schema auth; create schema storage; create schema extensions; create schema cron; create schema net;
 create table auth.users (id uuid primary key default gen_random_uuid(), email text);

@@ -815,6 +815,24 @@ drop policy if exists notifications_delete on public.notifications;
 create policy notifications_delete on public.notifications for delete to authenticated
   using (user_id = auth.uid());
 
+-- Permisos explícitos. Desde 2026 Supabase ya no expone las tablas nuevas
+-- automáticamente: sin estos "grant" la app recibe "permission denied".
+-- Quién ve qué fila lo siguen decidiendo las reglas RLS de arriba.
+grant usage on schema public to authenticated, service_role;
+grant select, insert, update, delete on
+  public.profiles, public.invitations, public.user_secrets, public.recurring_tasks,
+  public.tasks, public.task_shares, public.task_comments, public.task_attachments,
+  public.notifications
+  to authenticated;
+grant select, insert, update, delete on all tables in schema public to service_role;
+grant usage, select on all sequences in schema public to authenticated, service_role;
+revoke all on public.app_config, public.daily_jobs, public.recurring_spawns from anon, authenticated;
+grant execute on function
+  public.is_active_user(), public.is_admin(), public.is_shared_with_me(uuid),
+  public.can_see_task(uuid), public.can_edit_task(uuid), public.is_task_creator(uuid),
+  public.task_id_from_path(text), public.app_tz()
+  to authenticated, service_role;
+
 -- Funciones internas: no se pueden llamar desde la app
 revoke execute on function public.cron_minute() from public, anon, authenticated;
 revoke execute on function public.run_morning(date) from public, anon, authenticated;
