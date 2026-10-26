@@ -1,15 +1,20 @@
 // Usuarios (solo admin): invitar, ver quién entró, desactivar
 import { html, useState, useEffect } from '../deps.js';
 import { useApp } from '../ctx.js';
-import { cls, nextColor, fmtDateTime } from '../util.js';
-import { Icon, Avatar, Toggle, Segmented, Empty } from './ui.js';
+import { cls, nextColor, fmtDateTime, relTime, firstName } from '../util.js';
+import { Icon, Avatar, Toggle, Segmented, Empty, Modal } from './ui.js';
 
 export function AdminPage() {
   const { t, me, profiles, api, reload, toast, errorText, lang } = useApp();
   const [invites, setInvites] = useState([]);
   const [f, setF] = useState({ email: '', full_name: '', role: 'banker', accepts_requests: false });
   const [busy, setBusy] = useState(false);
-  const load = () => api.listInvitations().then(setInvites).catch(() => setInvites([]));
+  const [resets, setResets] = useState([]);
+  const [temp, setTemp] = useState(null);
+  const load = () => {
+    api.listInvitations().then(setInvites).catch(() => setInvites([]));
+    api.listResetRequests().then(setResets).catch(() => setResets([]));
+  };
   useEffect(() => { load(); }, []);
 
   if (me.role !== 'admin') return html`<div class="page"><${Empty} icon="lock" title=${t('admin.only')} /></div>`;
@@ -42,6 +47,23 @@ export function AdminPage() {
     await api.deleteInvitation(i.email);
     load();
   }
+  async function resetPassword(r) {
+    const person = profiles.find((p) => p.id === r.user_id);
+    if (!confirm(t('admin.resetConfirm', { name: person?.full_name || '' }))) return;
+    setBusy(true);
+    try {
+      const password = await api.adminResetPassword(r.user_id);
+      setTemp({ person, password });
+      load();
+    } catch (err) { toast(errorText(err), 'error'); }
+    setBusy(false);
+  }
+  const copyTemp = async () => {
+    try {
+      await navigator.clipboard.writeText(t('admin.tempMsg', { pw: temp.password, url: appUrl }));
+      toast(t('settings.copied'));
+    } catch { /* */ }
+  };
   const copyMsg = async () => {
     try {
       await navigator.clipboard.writeText(t('admin.inviteMsg', { url: appUrl }));
@@ -51,6 +73,28 @@ export function AdminPage() {
 
   return html`<div class="page narrow">
     <div class="page-head"><div><h1>${t('admin.title')}</h1><p class="sub">${t('admin.sub')}</p></div></div>
+
+    ${resets.length > 0 && html`<section class="card-panel attention">
+      <div class="panel-title"><${Icon} name="lock" size=${16} />${t('admin.resetRequests')} <span class="count-badge">${resets.length}</span></div>
+      <p class="hint">${t('admin.resetHint')}</p>
+      <ul class="user-list">
+        ${resets.map((r) => {
+          const p = profiles.find((x) => x.id === r.user_id);
+          return html`<li key=${r.id}>
+            <${Avatar} person=${p} size=${32} />
+            <div class="grow"><b>${p?.full_name || '?'}</b><div class="muted small">${p?.email || ''} · ${t('admin.requestedAgo', { when: relTime(r.requested_at, lang) })}</div></div>
+            <button class="btn primary sm" disabled=${busy} onClick=${() => resetPassword(r)}><${Icon} name="lock" size=${14} />${t('admin.resetBtn')}</button>
+          </li>`;
+        })}
+      </ul>
+    </section>`}
+
+    ${temp && html`<${Modal} title=${t('admin.tempTitle', { name: temp.person?.full_name || '' })} onClose=${() => setTemp(null)}
+      footer=${html`<button class="btn ghost" onClick=${() => setTemp(null)}>${t('admin.tempDone')}</button>
+        <button class="btn primary" onClick=${copyTemp}><${Icon} name="copy" />${t('admin.copyPw')}</button>`}>
+      <div class="temp-pw">${temp.password}</div>
+      <p class="hint">${t('admin.tempText')}</p>
+    </${Modal}>`}
 
     <section class="card-panel">
       <div class="panel-title"><${Icon} name="userplus" size=${16} />${t('admin.invite')}</div>

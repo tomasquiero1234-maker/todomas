@@ -4,7 +4,7 @@ import { useApp } from '../ctx.js';
 import { cls, relTime, fmtDate } from '../util.js';
 import { Icon, Avatar } from './ui.js';
 
-const ICON = { new_request: 'inbox', done: 'check', date_changed: 'calendar', cancelled: 'x', comment: 'message', due_soon: 'clock', digest: 'sun' };
+const ICON = { new_request: 'inbox', done: 'check', date_changed: 'calendar', cancelled: 'x', comment: 'message', due_soon: 'clock', digest: 'sun', reset_request: 'lock' };
 
 export function notifText(n, { t, byId, lang }) {
   const actor = byId[n.actor_id]?.full_name || '';
@@ -18,6 +18,7 @@ export function notifText(n, { t, byId, lang }) {
     case 'comment': return t('notif.comment', { actor, title, comment: p.comment || '' });
     case 'due_soon': return t('notif.due_soon', { n: p.count ?? (p.items || []).length });
     case 'digest': return t('notif.digest', { n: p.open ?? 0 });
+    case 'reset_request': return t('notif.reset_request', { actor: actor || p.name || '' });
     default: return title;
   }
 }
@@ -43,6 +44,7 @@ export function Bell() {
     if (!n.read_at) { await api.markRead([n.id]); reload(); }
     if (n.task_id) openTask(n.task_id);
     else if (n.type === 'digest') navigate('#/queue');
+    else if (n.type === 'reset_request') navigate('#/admin');
     else if (n.type === 'due_soon') navigate('#/board');
   }
   async function readAll() {

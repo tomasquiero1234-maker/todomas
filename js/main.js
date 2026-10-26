@@ -145,6 +145,12 @@ function App({ api, lang, setLang }) {
       <button class="btn ghost block" onClick=${() => api.signOut()}>${t('nav.signOut')}</button>
     </div></div>`;
   }
+  // Entró con una contraseña temporal que le dio el admin: tiene que elegir una nueva
+  if (me.must_change_password) {
+    return html`<${NewPasswordScreen} api=${api} t=${t} errorText=${errorText}
+      title=${t('login.tempPwTitle')} text=${t('login.tempPwText')}
+      onDone=${async () => { await api.updateProfile(me.id, { must_change_password: false }); await reload(); toast(t('settings.pwChanged')); }} />`;
+  }
 
   const byId = Object.fromEntries(data.profiles.map((p) => [p.id, p]));
   const receivers = data.profiles.filter((p) => p.active && p.accepts_requests);

@@ -63,8 +63,8 @@ Guarda la contraseña de aplicación en el Llavero y no la pegues en ningún cha
 ### 5. Las dos funciones: emails y calendario
 En Supabase, **Edge Functions → Deploy a new function → Via editor**:
 1. Crea una función llamada **`notify`**, pega el contenido de `supabase/functions/notify/index.ts` y despliégala.
-2. Crea otra llamada **`calendar`** con `supabase/functions/calendar/index.ts`.
-3. En la configuración de **cada una**, desactiva **"Verify JWT"** (o "Enforce JWT verification").
+2. Crea otra llamada **`calendar`** con `supabase/functions/calendar/index.ts`, y una tercera llamada **`reset-password`** con `supabase/functions/reset-password/index.ts`.
+3. En la configuración de **cada una de las tres**, desactiva **"Verify JWT"** (o "Enforce JWT verification").
 4. En **Edge Functions → Secrets**, agrega:
    - `SMTP_USER`: la cuenta que manda.
    - `SMTP_PASSWORD`: su contraseña de aplicación.
@@ -118,6 +118,14 @@ Los comentarios solo avisan dentro de la app. Todo funciona en hora de Chile.
 
 ---
 
+## Contraseñas olvidadas (sin email)
+1. La persona toca **¿Olvidaste tu contraseña?** → **Pedir contraseña nueva**.
+2. A ti te llega un aviso en la campana. En **Usuarios** aparece arriba, en *"Pidieron una contraseña nueva"*.
+3. Tocas **Restablecer**. La app genera una contraseña temporal que solo ves esa vez; se la mandas por WhatsApp con **Copiar mensaje**.
+4. Cuando la persona entra con la temporal, la app le exige elegir una nueva.
+
+Solo se puede restablecer la contraseña de quien lo pidió en los últimos 7 días. La función `reset-password` lo verifica y rechaza cualquier otro caso.
+
 ## Bueno saber
 
 - **El panel de Supabase ve todo.** Dentro de la app nadie ve los privados de otros, tampoco el admin. Pero el dueño del proyecto en Supabase podría leer cualquier fila desde el panel (*Table Editor*), como pasa con cualquier sistema donde alguien administra la base. Si los banqueros necesitan una garantía total, la opción es cifrar los pendientes privados en el navegador; eso no está hecho.
@@ -137,7 +145,8 @@ supabase/01_esquema.sql        tablas, reglas de privacidad, cron
 supabase/02_configuracion.sql  URL, zona horaria, admin
 supabase/03_recurrentes.sql    tus recurrentes
 supabase/04_emails_apagados.sql  interruptor de emails (apagado)
-supabase/functions/            notify (emails) y calendar (.ics)
+supabase/05_restablecer_contrasenas.sql  pedir y restablecer contraseñas sin email
+supabase/functions/            notify (emails), calendar (.ics) y reset-password
 supabase/pruebas/              pruebas de privacidad del esquema
 ```
 

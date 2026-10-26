@@ -120,6 +120,8 @@ function seed() {
   db.tasks.filter((t) => isRequest(t) && t.status !== 'done' && t.created_at > tsAt(addDays(T, -1), '00:00'))
     .forEach((t) => notif('u-tomas', 'new_request', t, t.created_by));
   notif('u-karime', 'done', done1, 'u-tomas');
+  db.resetRequests = [{ id: 1, user_id: 'u-c', requested_at: tsAt(T, '09:05'), resolved_at: null }];
+  db.notifications.push({ id: 999, user_id: 'u-tomas', task_id: null, type: 'reset_request', actor_id: 'u-c', payload: { name: 'Banquero C' }, read_at: null, created_at: tsAt(T, '09:05') });
   db.notifications.at(-1).created_at = done1.completed_at;
   return db;
 }
@@ -217,6 +219,34 @@ export function createDemoApi() {
     async listProfiles() { return active() ? clone(db.profiles) : [clone(me())]; },
     async listTasks() { return db.tasks.filter(canSee).map(withMeta); },
     async getAppSettings() { return { emails_enabled: true }; },
+    async requestPasswordReset(email) {
+      const p = db.profiles.find((x) => x.email === email.trim().toLowerCase() && x.active);
+      if (!p) return;
+      db.resetRequests ||= [];
+      const open = db.resetRequests.find((r) => r.user_id === p.id && !r.resolved_at);
+      if (open) { open.requested_at = nowTs(); save(); return; }
+      db.resetRequests.push({ id: Date.now(), user_id: p.id, requested_at: nowTs(), resolved_at: null });
+      db.profiles.filter((a) => a.role === 'admin' && a.active && a.id !== p.id).forEach((a) => db.notifications.push({
+        id: Date.now() + Math.random(), user_id: a.id, task_id: null, type: 'reset_request', actor_id: p.id,
+        payload: { name: p.full_name }, read_at: null, created_at: nowTs(),
+      }));
+      save();
+    },
+    async listResetRequests() {
+      if (me()?.role !== 'admin') return [];
+      return clone((db.resetRequests || []).filter((r) => !r.resolved_at));
+    },
+    async adminResetPassword(userId) {
+      if (me()?.role !== 'admin' || userId === uid) throw err('TODOMAS_FORBIDDEN');
+      const r = (db.resetRequests || []).find((x) => x.user_id === userId && !x.resolved_at);
+      if (!r) throw err('TODOMAS_NO_RESET_REQUEST');
+      r.resolved_at = nowTs();
+      const p = db.profiles.find((x) => x.id === userId);
+      p.must_change_password = true;
+      save();
+      const abc = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789';
+      return Array.from(crypto.getRandomValues(new Uint8Array(12)), (b) => abc[b % abc.length]).join('');
+    },
     async getQueue(receiverId) {
       const r = db.profiles.find((p) => p.id === receiverId);
       if (!active() || !r?.accepts_requests) return [];

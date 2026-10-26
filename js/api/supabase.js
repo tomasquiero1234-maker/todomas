@@ -123,6 +123,27 @@ export async function createSupabaseApi(cfg) {
       if (error) return { emails_enabled: true };
       return data || { emails_enabled: true };
     },
+    async requestPasswordReset(email) {
+      const { error } = await sb.rpc('request_password_reset', { p_email: email.trim().toLowerCase() });
+      fail(error);
+    },
+    async listResetRequests() {
+      const { data, error } = await sb.from('password_reset_requests')
+        .select('id, user_id, requested_at').is('resolved_at', null).order('requested_at');
+      if (error) return [];
+      return data;
+    },
+    async adminResetPassword(userId) {
+      const { data, error } = await sb.functions.invoke('reset-password', { body: { user_id: userId } });
+      if (error) {
+        let code = error.message || 'ERROR';
+        try { code = (await error.context.json()).error || code; } catch { /* sin cuerpo */ }
+        const e = new Error(code);
+        e.code = code;
+        throw e;
+      }
+      return data.password;
+    },
     async getQueue(receiverId) {
       const { data, error } = await sb.rpc('get_queue', { p_receiver: receiverId });
       fail(error);

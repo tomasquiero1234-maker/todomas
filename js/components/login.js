@@ -1,5 +1,5 @@
 // Entrar / crear cuenta (solo correos invitados) / recuperar contraseña
-import { html, useState } from '../deps.js';
+import { html, useState, useEffect } from '../deps.js';
 import { cls } from '../util.js';
 import { Icon, Avatar } from './ui.js';
 
@@ -19,6 +19,12 @@ export function LoginScreen({ api, t, lang, setLang, errorText }) {
   const [pw2, setPw2] = useState('');
   const [msg, setMsg] = useState(null);
   const [busy, setBusy] = useState(false);
+  // Con los emails apagados, "olvidé mi contraseña" le avisa al admin en vez de mandar un correo
+  const [emailsOn, setEmailsOn] = useState(true);
+  useEffect(() => {
+    if (api.mode === 'demo') return;
+    api.getAppSettings().then((s) => setEmailsOn(!!s?.emails_enabled)).catch(() => setEmailsOn(true));
+  }, []);
 
   if (api.mode === 'demo') {
     const people = api.demoPeople();
@@ -51,9 +57,12 @@ export function LoginScreen({ api, t, lang, setLang, errorText }) {
         if (pw !== pw2) throw Object.assign(new Error('PW_MISMATCH'), { code: 'PW_MISMATCH' });
         const r = await api.signUp(email, pw);
         if (r.needsConfirm) setMsg({ kind: 'ok', text: t('login.checkEmail') });
-      } else {
+      } else if (emailsOn) {
         await api.resetPassword(email);
         setMsg({ kind: 'ok', text: t('login.resetSent') });
+      } else {
+        await api.requestPasswordReset(email);
+        setMsg({ kind: 'ok', text: t('login.resetRequested') });
       }
     } catch (err) {
       setMsg({ kind: 'error', text: errorText(err) });
@@ -70,6 +79,7 @@ export function LoginScreen({ api, t, lang, setLang, errorText }) {
         <button type="button" class=${cls(mode === 'up' && 'on')} onClick=${() => { setMode('up'); setMsg(null); }}>${t('login.signUp')}</button>
       </div>`}
       ${mode === 'reset' && html`<h2 class="auth-h">${t('login.resetTitle')}</h2>`}
+      ${mode === 'reset' && !emailsOn && html`<p class="hint">${t('login.resetHintAdmin')}</p>`}
       ${mode === 'up' && html`<p class="hint">${t('login.signUpHint')}</p>`}
       <label class="field"><span>${t('login.email')}</span>
         <input type="email" autocomplete="email" value=${email} onInput=${(e) => setEmail(e.target.value)} autofocus /></label>
@@ -79,7 +89,7 @@ export function LoginScreen({ api, t, lang, setLang, errorText }) {
         <input type="password" autocomplete="new-password" value=${pw2} onInput=${(e) => setPw2(e.target.value)} /></label>`}
       ${msg && html`<div class=${cls('form-msg', msg.kind)}>${msg.text}</div>`}
       <button class="btn primary block" disabled=${busy}>
-        ${mode === 'in' ? t('login.signIn') : mode === 'up' ? t('login.createAccount') : t('login.sendReset')}</button>
+        ${mode === 'in' ? t('login.signIn') : mode === 'up' ? t('login.createAccount') : emailsOn ? t('login.sendReset') : t('login.sendResetAdmin')}</button>
       <div class="auth-links">
         ${mode === 'in' && html`<button type="button" class="link-btn" onClick=${() => { setMode('reset'); setMsg(null); }}>${t('login.forgot')}</button>`}
         ${mode === 'reset' && html`<button type="button" class="link-btn" onClick=${() => { setMode('in'); setMsg(null); }}>← ${t('login.back')}</button>`}
@@ -88,7 +98,7 @@ export function LoginScreen({ api, t, lang, setLang, errorText }) {
   </div>`;
 }
 
-export function NewPasswordScreen({ api, t, onDone, errorText }) {
+export function NewPasswordScreen({ api, t, onDone, errorText, title, text }) {
   const [pw, setPw] = useState('');
   const [pw2, setPw2] = useState('');
   const [msg, setMsg] = useState(null);
@@ -103,7 +113,8 @@ export function NewPasswordScreen({ api, t, onDone, errorText }) {
   }
   return html`<div class="auth"><form class="auth-card" onSubmit=${submit}>
     <div class="auth-top"><${Brand} big /></div>
-    <h2 class="auth-h">${t('login.newPwTitle')}</h2>
+    <h2 class="auth-h">${title || t('login.newPwTitle')}</h2>
+    ${text && html`<p class="hint">${text}</p>`}
     <label class="field"><span>${t('settings.newPw')}</span><input type="password" autocomplete="new-password" value=${pw} onInput=${(e) => setPw(e.target.value)} autofocus /></label>
     <label class="field"><span>${t('settings.repeatPw')}</span><input type="password" autocomplete="new-password" value=${pw2} onInput=${(e) => setPw2(e.target.value)} /></label>
     ${msg && html`<div class="form-msg error">${msg}</div>`}
