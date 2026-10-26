@@ -734,3 +734,10 @@ input[type="date"], input[type="time"] { min-width: 0; }
   text-align: center; padding: 16px; border-radius: 12px; background: var(--surface-3); user-select: all; margin-bottom: 10px;
   overflow-wrap: anywhere;
 }
+
+/* aviso de versión nueva */
+.update-bar {
+  display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap;
+  padding: 8px 16px; background: var(--primary); color: var(--primary-ink); font-size: 13px; font-weight: 600;
+}
+.update-bar .btn { background: var(--primary-ink); color: var(--primary); height: 28px; }

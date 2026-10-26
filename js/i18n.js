@@ -1,5 +1,6 @@
 // Textos en español e inglés. t('clave', { variable }) → texto
 const ES = {
+  'update.text': 'Hay una versión nueva de TODOmás.', 'update.reload': 'Actualizar',
   you: 'Tú', save: 'Guardar', discard: 'Descartar', cancel: 'Cancelar', delete: 'Borrar', edit: 'Editar', send: 'Enviar', retry: 'Reintentar', yes: 'Sí', no: 'No',
   priority: 'Prioridad', dueDate: 'Fecha límite', recurring: 'Recurrente', sharedWith: 'Compartida con', privateHint: 'Privada: solo tú la ves',
   'prio.3': 'Alta', 'prio.2': 'Media', 'prio.1': 'Baja',
@@ -78,6 +79,7 @@ const ES = {
 };
 
 const EN = {
+  'update.text': 'A new version of TODOmás is available.', 'update.reload': 'Update',
   you: 'You', save: 'Save', discard: 'Discard', cancel: 'Cancel', delete: 'Delete', edit: 'Edit', send: 'Send', retry: 'Retry', yes: 'Yes', no: 'No',
   priority: 'Priority', dueDate: 'Due date', recurring: 'Recurring', sharedWith: 'Shared with', privateHint: 'Private: only you see it',
   'prio.3': 'High', 'prio.2': 'Medium', 'prio.1': 'Low',

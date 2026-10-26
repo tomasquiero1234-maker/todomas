@@ -31,6 +31,42 @@ const errorTextFor = (t) => (e) => {
   return e?.message && !/^TODOMAS_/.test(e.message) && e.message.length < 160 ? e.message : t('error.generic');
 };
 
+// Archivos de la app: al actualizar se vuelven a bajar para no quedar con una versión vieja en caché
+const APP_FILES = [
+  'index.html', 'config.js', 'css/app.css', 'js/main.js', 'js/deps.js', 'js/ctx.js', 'js/i18n.js', 'js/util.js',
+  'js/export.js', 'js/api/index.js', 'js/api/demo.js', 'js/api/supabase.js',
+  ...['ui', 'board', 'queue', 'team', 'metrics', 'settings', 'admin', 'notifications', 'login', 'task-modal', 'new-task']
+    .map((c) => `js/components/${c}.js`),
+];
+
+// ¿Se publicó una versión nueva mientras la pestaña estaba abierta?
+function useNewVersion() {
+  const [available, setAvailable] = useState(false);
+  useEffect(() => {
+    let first = null;
+    const check = async () => {
+      try {
+        const r = await fetch('index.html', { method: 'HEAD', cache: 'no-store' });
+        const v = r.headers.get('etag') || r.headers.get('last-modified');
+        if (!v) return;
+        if (first === null) first = v;
+        else if (v !== first) setAvailable(true);
+      } catch { /* sin conexión: se revisa después */ }
+    };
+    check();
+    const iv = setInterval(check, 120000);
+    const onVis = () => document.visibilityState === 'visible' && check();
+    document.addEventListener('visibilitychange', onVis);
+    return () => { clearInterval(iv); document.removeEventListener('visibilitychange', onVis); };
+  }, []);
+  return available;
+}
+
+async function updateNow() {
+  try { await Promise.all(APP_FILES.map((f) => fetch(f, { cache: 'reload' }))); } catch { /* recarga igual */ }
+  location.reload();
+}
+
 function Splash() {
   return html`<div class="splash"><span class="brand-mark lg"></span></div>`;
 }
@@ -65,6 +101,7 @@ function App({ api, lang, setLang }) {
   const [route, setRoute] = useState(parseHash);
   const [modal, setModal] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const newVersion = useNewVersion();
   const t = useMemo(() => makeT(lang), [lang]);
   const errorText = useMemo(() => errorTextFor(t), [t]);
 
@@ -182,6 +219,10 @@ function App({ api, lang, setLang }) {
   const newLabel = me.accepts_requests || !receivers.length ? t('new.task') : t('new.request', { name: receiverName });
 
   return html`<${AppCtx.Provider} value=${ctx}>
+    ${newVersion && html`<div class="update-bar" role="status">
+      <span>${t('update.text')}</span>
+      <button class="btn sm" onClick=${updateNow}>${t('update.reload')}</button>
+    </div>`}
     ${api.mode === 'demo' && html`<div class="demo-bar">
       <span><b>${t('demo.badge')}</b> ${t('demo.viewingAs', { name: me.full_name })}</span>
       <button class="link-btn" onClick=${() => api.signOut()}>${t('demo.switch')}</button>
