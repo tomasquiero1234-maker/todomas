@@ -259,7 +259,7 @@ export function TaskModal({ id, onClose }) {
 
 // Cerrar un pedido: nota opcional + archivos opcionales → aviso al banquero
 export function DoneDialog({ id, onClose }) {
-  const { t, tasks, byId, api, reload, toast, errorText } = useApp();
+  const { t, tasks, byId, api, reload, toast, errorText, settings } = useApp();
   const task = tasks.find((x) => x.id === id);
   const [note, setNote] = useState(task?.done_note || '');
   const [files, setFiles] = useState([]);
@@ -287,7 +287,7 @@ export function DoneDialog({ id, onClose }) {
       <button class="btn good" disabled=${busy} onClick=${confirmDone}><${Icon} name="check" />${t('done.confirm')}</button>`}>
     <div class="done-dialog">
       <div class="done-task"><b>${task.title}</b><span class="muted">${t('task.requestFrom', { name: requester?.full_name })}</span></div>
-      <p class="hint"><${Icon} name="mail" size=${14} /> ${t('done.willNotify', { name: firstName(requester?.full_name) })}</p>
+      <p class="hint"><${Icon} name=${settings?.emails_enabled ? 'mail' : 'bell'} size=${14} /> ${t(settings?.emails_enabled ? 'done.willNotify' : 'done.willNotifyApp', { name: firstName(requester?.full_name) })}</p>
       <label class="field">
         <span>${t('done.note')}</span>
         <textarea rows="3" value=${note} onInput=${(e) => setNote(e.target.value)} placeholder=${t('done.notePh')} autofocus></textarea>

@@ -216,6 +216,7 @@ export function createDemoApi() {
     async getMe() { return me() ? clone(me()) : null; },
     async listProfiles() { return active() ? clone(db.profiles) : [clone(me())]; },
     async listTasks() { return db.tasks.filter(canSee).map(withMeta); },
+    async getAppSettings() { return { emails_enabled: true }; },
     async getQueue(receiverId) {
       const r = db.profiles.find((p) => p.id === receiverId);
       if (!active() || !r?.accepts_requests) return [];

@@ -88,7 +88,11 @@ export async function createSupabaseApi(cfg) {
       const { error } = await sb.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
         redirectTo: location.origin + location.pathname,
       });
-      fail(error);
+      if (error) {
+        const e = new Error('RESET_FAILED');
+        e.code = 'RESET_FAILED';
+        throw e;
+      }
     },
     async updatePassword(password) {
       const { error } = await sb.auth.updateUser({ password });
@@ -113,6 +117,11 @@ export async function createSupabaseApi(cfg) {
         .select('*, task_shares(user_id), task_comments(count), task_attachments(count)')
         .order('created_at'));
       return rows.map(normTask);
+    },
+    async getAppSettings() {
+      const { data, error } = await sb.rpc('app_settings');
+      if (error) return { emails_enabled: true };
+      return data || { emails_enabled: true };
     },
     async getQueue(receiverId) {
       const { data, error } = await sb.rpc('get_queue', { p_receiver: receiverId });

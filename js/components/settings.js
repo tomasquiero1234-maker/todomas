@@ -14,7 +14,7 @@ function Section({ icon, title, children, sub }) {
 }
 
 function Profile() {
-  const { t, me, api, reload, toast, errorText, profiles } = useApp();
+  const { t, me, api, reload, toast, errorText, profiles, settings } = useApp();
   const [name, setName] = useState(me.full_name);
   const save = async (patch, msg) => {
     try {
@@ -47,8 +47,9 @@ function Profile() {
       <span>${t('settings.language')}</span>
       <${Segmented} small value=${me.lang} onChange=${(v) => save({ lang: v })} options=${[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]} />
     </div>
-    <${Toggle} checked=${me.email_notifications} onChange=${(v) => save({ email_notifications: v })}
-      label=${t('settings.emails')} hint=${t('settings.emailsHint')} />
+    <${Toggle} checked=${settings?.emails_enabled && me.email_notifications} disabled=${!settings?.emails_enabled}
+      onChange=${(v) => save({ email_notifications: v })}
+      label=${t('settings.emails')} hint=${settings?.emails_enabled ? t('settings.emailsHint') : t('settings.emailsOff')} />
   </${Section}>`;
 }
 

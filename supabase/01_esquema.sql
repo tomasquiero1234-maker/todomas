@@ -484,11 +484,23 @@ create trigger todomas_comments_after_insert
   after insert on public.task_comments
   for each row execute function public.comments_after_insert();
 
+-- Interruptor general de emails (app_config 'emails_enabled'; si no existe, prendido)
+create or replace function public.emails_enabled() returns boolean
+language sql stable security definer set search_path = public as $$
+  select coalesce((select value from app_config where key = 'emails_enabled'), 'true') <> 'false';
+$$;
+
+-- Ajustes generales que la app necesita saber (sin datos sensibles)
+create or replace function public.app_settings() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object('emails_enabled', public.emails_enabled());
+$$;
+
 -- Qué avisos van también por email
 create or replace function public.notifications_before_insert() returns trigger
 language plpgsql security definer set search_path = public as $$
 begin
-  if new.type = 'comment' or not exists (
+  if new.type = 'comment' or not public.emails_enabled() or not exists (
        select 1 from profiles p
        where p.id = new.user_id and p.active and p.email_notifications) then
     new.email_status := 'skipped';
@@ -642,7 +654,7 @@ begin
     end if;
   end if;
 
-  if exists (select 1 from notifications where email_status = 'pending') then
+  if public.emails_enabled() and exists (select 1 from notifications where email_status = 'pending') then
     select value into base_url from app_config where key = 'project_url';
     if coalesce(base_url, '') <> '' then
       perform net.http_post(
@@ -830,7 +842,7 @@ revoke all on public.app_config, public.daily_jobs, public.recurring_spawns from
 grant execute on function
   public.is_active_user(), public.is_admin(), public.is_shared_with_me(uuid),
   public.can_see_task(uuid), public.can_edit_task(uuid), public.is_task_creator(uuid),
-  public.task_id_from_path(text), public.app_tz()
+  public.task_id_from_path(text), public.app_tz(), public.emails_enabled(), public.app_settings()
   to authenticated, service_role;
 
 -- Funciones internas: no se pueden llamar desde la app

@@ -61,7 +61,7 @@ function UserMenu({ me, t, api, navigate, setLang, lang }) {
 }
 
 function App({ api, lang, setLang }) {
-  const [data, setData] = useState({ me: null, profiles: [], tasks: [], notifications: [], queues: {}, loaded: false, error: null });
+  const [data, setData] = useState({ me: null, profiles: [], tasks: [], notifications: [], queues: {}, settings: { emails_enabled: true }, loaded: false, error: null });
   const [route, setRoute] = useState(parseHash);
   const [modal, setModal] = useState(null);
   const [toasts, setToasts] = useState([]);
@@ -75,10 +75,10 @@ function App({ api, lang, setLang }) {
         setData((d) => ({ ...d, me, loaded: true }));
         return null;
       }
-      const [profiles, tasks, notifications] = await Promise.all([api.listProfiles(), api.listTasks(), api.listNotifications()]);
+      const [profiles, tasks, notifications, settings] = await Promise.all([api.listProfiles(), api.listTasks(), api.listNotifications(), api.getAppSettings()]);
       const receivers = profiles.filter((p) => p.active && p.accepts_requests);
       const qs = await Promise.all(receivers.map((r) => api.getQueue(r.id)));
-      const next = { me, profiles, tasks, notifications, queues: Object.fromEntries(receivers.map((r, i) => [r.id, qs[i]])), loaded: true, error: null };
+      const next = { me, profiles, tasks, notifications, settings, queues: Object.fromEntries(receivers.map((r, i) => [r.id, qs[i]])), loaded: true, error: null };
       setData(next);
       return next;
     } catch (e) {

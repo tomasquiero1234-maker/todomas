@@ -41,7 +41,13 @@ En **Authentication**:
 1. **Sign In / Providers → Email:** deja Email activado y **desactiva "Confirm email"**. Solo pueden registrarse los correos que invites, así que no hace falta confirmar.
 2. **URL Configuration:** en *Site URL* y en *Redirect URLs* pon la URL de la app, por ejemplo `https://tomasquiero1234-maker.github.io/todomas/`.
 
-### 4. Cuenta que manda los avisos
+### 4. Cuenta que manda los avisos (opcional)
+Los emails están **apagados** desde `supabase/04_emails_apagados.sql`. Mientras sigan así, los avisos llegan solo a la campana de la app. Para prenderlos, carga los secrets del paso 5 y corre esto en el SQL Editor:
+
+```sql
+update public.app_config set value = 'true' where key = 'emails_enabled';
+```
+
 Sirve cualquier correo que permita "contraseñas de aplicación" y SMTP por el puerto 465. Supabase bloquea el 587, así que Outlook e iCloud no sirven.
 
 - **Yahoo (recomendado):** crea una cuenta, por ejemplo `todomas.avisos@yahoo.com`. Después ve a *Account security → Generate app password* y crea una con el nombre `TODOmás`.
@@ -101,7 +107,7 @@ En Supabase, **Edge Functions → Deploy a new function → Via editor**:
 - Las tareas propias de un banquero quedan **compartidas con Tomás por defecto**. Las puede marcar privadas o compartirlas con más gente.
 - Las tareas de trabajo de Tomás que no son privadas aparecen en la cola como "Tarea de Tomás", sin detalle. Las privadas no aparecen ni en el conteo.
 
-**Emails** (además del aviso dentro de la app):
+**Emails** (si están prendidos; además del aviso dentro de la app):
 - pedido nuevo, a Tomás;
 - Done, al banquero;
 - cambio de fecha, a la otra persona;
@@ -130,6 +136,7 @@ js/components/        tablero, cola, ficha, métricas, ajustes, usuarios…
 supabase/01_esquema.sql        tablas, reglas de privacidad, cron
 supabase/02_configuracion.sql  URL, zona horaria, admin
 supabase/03_recurrentes.sql    tus recurrentes
+supabase/04_emails_apagados.sql  interruptor de emails (apagado)
 supabase/functions/            notify (emails) y calendar (.ics)
 supabase/pruebas/              pruebas de privacidad del esquema
 ```

@@ -25,7 +25,7 @@ const ES = {
   'task.files': 'Adjuntos', 'task.addFile': 'Adjuntar', 'task.noFiles': 'Sin adjuntos', 'task.responseFile': 'Respuesta', 'task.comments': 'Comentarios', 'task.commentPh': 'Escribe un comentario… (⌘/Ctrl + Enter envía)',
   'task.createdBy': 'Creado por {name} · {date}', 'task.completedAt': 'Done · {date}', 'task.addToCalendar': 'Google Calendar', 'task.cancelRequest': 'Cancelar pedido',
   'task.confirmCancel': '¿Cancelar este pedido? Se le avisará a {name}.', 'task.confirmDelete': '¿Borrar este pendiente?', 'task.confirmDeleteFile': '¿Borrar {name}?',
-  'done.title': 'Marcar como Done', 'done.confirm': 'Listo, avisar', 'done.willNotify': 'Le llega un aviso por email a {name}.', 'done.note': 'Respuesta (opcional)', 'done.notePh': 'Lo que quieras contarle…', 'done.files': 'Adjuntar respuesta (opcional)', 'done.toast': 'Done. Le avisamos a {name}',
+  'done.title': 'Marcar como Done', 'done.confirm': 'Listo, avisar', 'done.willNotify': 'Le llega un aviso por email a {name}.', 'done.willNotifyApp': 'Le llega un aviso en la app a {name}.', 'done.note': 'Respuesta (opcional)', 'done.notePh': 'Lo que quieras contarle…', 'done.files': 'Adjuntar respuesta (opcional)', 'done.toast': 'Done. Le avisamos a {name}',
   'queue.title': 'La cola de {name}', 'queue.titleOwner': 'Mi cola', 'queue.sub': 'Así va el trabajo de {name}. Ves el detalle solo de tus pedidos y de lo que te compartieron.',
   'queue.subOwner': 'Así la ven los banqueros: ven que existe cada pedido y su lugar, pero el detalle solo quien lo pidió. Tus privados no aparecen.',
   'queue.statOpen': 'En la cola', 'queue.statDoing': 'En curso', 'queue.statWeek': 'Vencen esta semana', 'queue.statMine': 'Tus pedidos', 'queue.statBest': 'El primero va {pos}', 'queue.statNone': 'Ninguno abierto',
@@ -44,7 +44,7 @@ const ES = {
   'chart.showTable': 'Ver tabla', 'chart.showChart': 'Ver gráfico', 'chart.total': 'Total', 'chart.weekOf': 'Semana del {date}',
   'dur.lt1h': '< 1 h', 'dur.hours': '{n} h', 'dur.days': '{n} día|{n} días',
   'settings.title': 'Ajustes', 'settings.profile': 'Perfil', 'settings.name': 'Nombre', 'settings.color': 'Color', 'settings.colorUsed': 'Lo usa otra persona', 'settings.language': 'Idioma',
-  'settings.emails': 'Avisos por email', 'settings.emailsHint': 'Pedidos nuevos, Done, cambios de fecha, por vencer y resumen diario.',
+  'settings.emails': 'Avisos por email', 'settings.emailsHint': 'Pedidos nuevos, Done, cambios de fecha, por vencer y resumen diario.', 'settings.emailsOff': 'Los emails todavía no están activados. Los avisos llegan a la campana de la app.',
   'settings.password': 'Contraseña', 'settings.newPw': 'Nueva contraseña', 'settings.repeatPw': 'Repítela', 'settings.changePw': 'Cambiar', 'settings.pwChanged': 'Contraseña cambiada',
   'settings.calendar': 'Calendario', 'settings.calendarSub': 'Tus fechas límite en Google Calendar, actualizadas solas.', 'settings.copy': 'Copiar', 'settings.copied': 'Copiado',
   'settings.calStep1': 'En Google Calendar, junto a "Otros calendarios", toca "+".', 'settings.calStep2': 'Elige "Desde URL" y pega el link.', 'settings.calStep3': 'Listo: Google lo actualiza cada algunas horas.',
@@ -74,7 +74,7 @@ const ES = {
   'error.BAD_CREDENTIALS': 'Correo o contraseña incorrectos', 'error.EMAIL_NOT_CONFIRMED': 'Confirma tu correo primero', 'error.NOT_INVITED': 'Ese correo no está invitado. Pídeselo al administrador.',
   'error.ALREADY_USER': 'Ese correo ya tiene cuenta', 'error.WEAK_PASSWORD': 'Contraseña muy débil', 'error.PW_SHORT': 'Mínimo 8 caracteres', 'error.PW_MISMATCH': 'Las contraseñas no coinciden',
   'error.TODOMAS_FORBIDDEN': 'No tienes permiso para eso', 'error.TODOMAS_ONLY_ASSIGNEE': 'Solo quien hace el pedido puede moverlo', 'error.TODOMAS_ONLY_REQUESTER': 'El contenido lo edita quien lo pidió',
-  'error.TODOMAS_CANNOT_DEMOTE_SELF': 'No puedes desactivarte a ti mismo', 'error.FILE_TOO_BIG': 'Máximo 10 MB por archivo', 'error.DEMO_FILE_TOO_BIG': 'En demo, máximo 1 MB por archivo', 'error.DEMO_NO_EMAIL': 'En demo no hay emails',
+  'error.TODOMAS_CANNOT_DEMOTE_SELF': 'No puedes desactivarte a ti mismo', 'error.FILE_TOO_BIG': 'Máximo 10 MB por archivo', 'error.DEMO_FILE_TOO_BIG': 'En demo, máximo 1 MB por archivo', 'error.DEMO_NO_EMAIL': 'En demo no hay emails', 'error.RESET_FAILED': 'No pudimos mandarte el correo. Pídele al administrador que te ayude a recuperar el acceso.',
 };
 
 const EN = {
@@ -103,7 +103,7 @@ const EN = {
   'task.files': 'Attachments', 'task.addFile': 'Attach', 'task.noFiles': 'No attachments', 'task.responseFile': 'Reply', 'task.comments': 'Comments', 'task.commentPh': 'Write a comment… (⌘/Ctrl + Enter sends)',
   'task.createdBy': 'Created by {name} · {date}', 'task.completedAt': 'Done · {date}', 'task.addToCalendar': 'Google Calendar', 'task.cancelRequest': 'Cancel request',
   'task.confirmCancel': 'Cancel this request? {name} will be notified.', 'task.confirmDelete': 'Delete this item?', 'task.confirmDeleteFile': 'Delete {name}?',
-  'done.title': 'Mark as Done', 'done.confirm': 'Done, notify', 'done.willNotify': '{name} gets an email.', 'done.note': 'Reply (optional)', 'done.notePh': 'Anything to tell them…', 'done.files': 'Attach a reply (optional)', 'done.toast': 'Done. We let {name} know',
+  'done.title': 'Mark as Done', 'done.confirm': 'Done, notify', 'done.willNotify': '{name} gets an email.', 'done.willNotifyApp': '{name} gets an in-app notification.', 'done.note': 'Reply (optional)', 'done.notePh': 'Anything to tell them…', 'done.files': 'Attach a reply (optional)', 'done.toast': 'Done. We let {name} know',
   'queue.title': "{name}'s queue", 'queue.titleOwner': 'My queue', 'queue.sub': "How {name}'s work is going. You see details only of your requests and what was shared with you.",
   'queue.subOwner': 'This is how bankers see it: every request and its place, but details only for the requester. Your private items are hidden.',
   'queue.statOpen': 'In queue', 'queue.statDoing': 'In progress', 'queue.statWeek': 'Due this week', 'queue.statMine': 'Your requests', 'queue.statBest': 'First one is {pos}', 'queue.statNone': 'None open',
@@ -122,7 +122,7 @@ const EN = {
   'chart.showTable': 'Show table', 'chart.showChart': 'Show chart', 'chart.total': 'Total', 'chart.weekOf': 'Week of {date}',
   'dur.lt1h': '< 1 h', 'dur.hours': '{n} h', 'dur.days': '{n} day|{n} days',
   'settings.title': 'Settings', 'settings.profile': 'Profile', 'settings.name': 'Name', 'settings.color': 'Color', 'settings.colorUsed': 'Someone else uses it', 'settings.language': 'Language',
-  'settings.emails': 'Email notifications', 'settings.emailsHint': 'New requests, Done, date changes, coming due and daily summary.',
+  'settings.emails': 'Email notifications', 'settings.emailsHint': 'New requests, Done, date changes, coming due and daily summary.', 'settings.emailsOff': 'Emails are not switched on yet. Notifications arrive in the app bell.',
   'settings.password': 'Password', 'settings.newPw': 'New password', 'settings.repeatPw': 'Repeat it', 'settings.changePw': 'Change', 'settings.pwChanged': 'Password changed',
   'settings.calendar': 'Calendar', 'settings.calendarSub': 'Your due dates in Google Calendar, kept up to date.', 'settings.copy': 'Copy', 'settings.copied': 'Copied',
   'settings.calStep1': 'In Google Calendar, next to "Other calendars", tap "+".', 'settings.calStep2': 'Choose "From URL" and paste the link.', 'settings.calStep3': 'Done: Google refreshes it every few hours.',
@@ -152,7 +152,7 @@ const EN = {
   'error.BAD_CREDENTIALS': 'Wrong email or password', 'error.EMAIL_NOT_CONFIRMED': 'Confirm your email first', 'error.NOT_INVITED': "That email isn't invited. Ask the admin.",
   'error.ALREADY_USER': 'That email already has an account', 'error.WEAK_PASSWORD': 'Password too weak', 'error.PW_SHORT': 'At least 8 characters', 'error.PW_MISMATCH': "Passwords don't match",
   'error.TODOMAS_FORBIDDEN': "You don't have permission for that", 'error.TODOMAS_ONLY_ASSIGNEE': 'Only the person doing the request can move it', 'error.TODOMAS_ONLY_REQUESTER': 'Only the requester edits the content',
-  'error.TODOMAS_CANNOT_DEMOTE_SELF': "You can't disable yourself", 'error.FILE_TOO_BIG': 'Max 10 MB per file', 'error.DEMO_FILE_TOO_BIG': 'Max 1 MB per file in demo', 'error.DEMO_NO_EMAIL': 'No emails in demo',
+  'error.TODOMAS_CANNOT_DEMOTE_SELF': "You can't disable yourself", 'error.FILE_TOO_BIG': 'Max 10 MB per file', 'error.DEMO_FILE_TOO_BIG': 'Max 1 MB per file in demo', 'error.DEMO_NO_EMAIL': 'No emails in demo', 'error.RESET_FAILED': "We couldn't send you the email. Ask the admin to help you get back in.",
 };
 
 const DICT = { es: ES, en: EN };
