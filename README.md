@@ -50,7 +50,7 @@ update public.app_config set value = 'true' where key = 'emails_enabled';
 
 Sirve cualquier correo que permita "contraseñas de aplicación" y SMTP por el puerto 465. Supabase bloquea el 587, así que Outlook e iCloud no sirven.
 
-- **Yahoo (recomendado):** crea una cuenta, por ejemplo `todomas.avisos@yahoo.com`. Después ve a *Account security → Generate app password* y crea una con el nombre `TODOmás`.
+- **Yahoo (recomendado):** crea una cuenta, por ejemplo `tu-cuenta@yahoo.com`. Después ve a *Account security → Generate app password* y crea una con el nombre `TODOmás`.
 - **Gmail:** activa la verificación en 2 pasos y crea la contraseña de aplicación en https://myaccount.google.com/apppasswords.
 
 Guarda la contraseña de aplicación en el Llavero y no la pegues en ningún chat. Después, en Supabase, **Authentication → Emails → SMTP Settings**, activa *Custom SMTP*. Esto sirve para el mail de "olvidé mi contraseña":
