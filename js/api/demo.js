@@ -232,6 +232,24 @@ export function createDemoApi() {
       }));
       save();
     },
+    async adminRemoveUser(userId) {
+      if (me()?.role !== 'admin') throw err('TODOMAS_FORBIDDEN');
+      if (userId === uid) throw err('TODOMAS_CANNOT_REMOVE_SELF');
+      const target = db.profiles.find((p) => p.id === userId);
+      if (!target) return;
+      const gone = new Set(db.tasks.filter((t) => t.created_by === userId || t.assignee_id === userId).map((t) => t.id));
+      db.attachments.filter((a) => gone.has(a.task_id) || a.uploaded_by === userId).forEach((a) => delete db.files[a.storage_path]);
+      db.attachments = db.attachments.filter((a) => !gone.has(a.task_id) && a.uploaded_by !== userId);
+      db.comments = db.comments.filter((c) => !gone.has(c.task_id) && c.author_id !== userId);
+      db.shares = db.shares.filter((s) => !gone.has(s.task_id) && s.user_id !== userId);
+      db.tasks = db.tasks.filter((t) => !gone.has(t.id));
+      db.notifications = db.notifications.filter((n) => n.actor_id !== userId && n.user_id !== userId);
+      db.recurring = db.recurring.filter((r) => r.owner_id !== userId);
+      db.resetRequests = (db.resetRequests || []).filter((r) => r.user_id !== userId);
+      db.invitations = db.invitations.filter((i) => i.email !== target.email);
+      db.profiles = db.profiles.filter((p) => p.id !== userId);
+      save();
+    },
     async listResetRequests() {
       if (me()?.role !== 'admin') return [];
       return clone((db.resetRequests || []).filter((r) => !r.resolved_at));

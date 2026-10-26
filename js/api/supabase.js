@@ -144,6 +144,16 @@ export async function createSupabaseApi(cfg) {
       }
       return data.password;
     },
+    async adminRemoveUser(userId) {
+      const { error } = await sb.functions.invoke('remove-user', { body: { user_id: userId } });
+      if (error) {
+        let code = error.message || 'ERROR';
+        try { code = (await error.context.json()).error || code; } catch { /* sin cuerpo */ }
+        const e = new Error(code);
+        e.code = code;
+        throw e;
+      }
+    },
     async getQueue(receiverId) {
       const { data, error } = await sb.rpc('get_queue', { p_receiver: receiverId });
       fail(error);

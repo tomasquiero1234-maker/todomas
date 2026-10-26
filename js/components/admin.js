@@ -5,7 +5,7 @@ import { cls, nextColor, fmtDateTime, relTime, firstName } from '../util.js';
 import { Icon, Avatar, Toggle, Segmented, Empty, Modal } from './ui.js';
 
 export function AdminPage() {
-  const { t, me, profiles, api, reload, toast, errorText, lang } = useApp();
+  const { t, me, profiles, tasks, api, reload, toast, errorText, lang } = useApp();
   const [invites, setInvites] = useState([]);
   const [f, setF] = useState({ email: '', full_name: '', role: 'banker', accepts_requests: false });
   const [busy, setBusy] = useState(false);
@@ -33,6 +33,20 @@ export function AdminPage() {
       setF({ email: '', full_name: '', role: 'banker', accepts_requests: false });
       await load();
       toast(t('admin.invited'));
+    } catch (err) { toast(errorText(err), 'error'); }
+    setBusy(false);
+  }
+  async function removeUser(p) {
+    const n = tasks.filter((x) => x.created_by === p.id && x.assignee_id !== p.id).length;
+    const msg = [t('admin.removeConfirm', { name: p.full_name }), n ? t('admin.removeRequests', { n }) : '', t('admin.removeHint')]
+      .filter(Boolean).join('\n\n');
+    if (!confirm(msg)) return;
+    setBusy(true);
+    try {
+      await api.adminRemoveUser(p.id);
+      await reload();
+      load();
+      toast(t('admin.removed', { name: p.full_name }));
     } catch (err) { toast(errorText(err), 'error'); }
     setBusy(false);
   }
@@ -141,6 +155,8 @@ export function AdminPage() {
           <span class="tag">${t(`role.${p.role}`)}</span>
           ${p.accepts_requests && html`<span class="tag good">${t('admin.receivesTag')}</span>`}
           ${p.id !== me.id && html`<${Toggle} checked=${p.active} onChange=${(v) => patchUser(p, { active: v })} label=${p.active ? t('admin.active') : t('admin.inactive')} />`}
+          ${p.id !== me.id && html`<button class="btn danger-ghost sm" disabled=${busy} onClick=${() => removeUser(p)} title=${t('admin.remove')}>
+            <${Icon} name="trash" size=${14} />${t('admin.remove')}</button>`}
         </li>`)}
       </ul>
     </section>

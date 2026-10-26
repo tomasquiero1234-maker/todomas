@@ -63,8 +63,8 @@ Guarda la contraseña de aplicación en el Llavero y no la pegues en ningún cha
 ### 5. Las dos funciones: emails y calendario
 En Supabase, **Edge Functions → Deploy a new function → Via editor**:
 1. Crea una función llamada **`notify`**, pega el contenido de `supabase/functions/notify/index.ts` y despliégala.
-2. Crea otra llamada **`calendar`** con `supabase/functions/calendar/index.ts`, y una tercera llamada **`reset-password`** con `supabase/functions/reset-password/index.ts`.
-3. En la configuración de **cada una de las tres**, desactiva **"Verify JWT"** (o "Enforce JWT verification").
+2. Crea otra llamada **`calendar`** con `supabase/functions/calendar/index.ts`, una tercera llamada **`reset-password`** con `supabase/functions/reset-password/index.ts` y una cuarta llamada **`remove-user`** con `supabase/functions/remove-user/index.ts`.
+3. En la configuración de **cada una**, desactiva **"Verify JWT"** (o "Enforce JWT verification").
 4. En **Edge Functions → Secrets**, agrega:
    - `SMTP_USER`: la cuenta que manda.
    - `SMTP_PASSWORD`: su contraseña de aplicación.
@@ -126,6 +126,11 @@ Los comentarios solo avisan dentro de la app. Todo funciona en hora de Chile.
 
 Solo se puede restablecer la contraseña de quien lo pidió en los últimos 7 días. La función `reset-password` lo verifica y rechaza cualquier otro caso.
 
+## Desactivar o quitar a alguien
+En **Usuarios**, cada persona tiene dos opciones:
+- **Interruptor Activo:** la persona deja de poder entrar, pero se guarda todo, incluido su historial en las métricas. Se puede volver a activar cuando quieras.
+- **Quitar:** borra su cuenta, sus pendientes (incluidos los privados) y los pedidos que hizo, con sus comentarios y adjuntos. No se puede deshacer. Su correo queda libre para invitarla de nuevo.
+
 ## Bueno saber
 
 - **El panel de Supabase ve todo.** Dentro de la app nadie ve los privados de otros, tampoco el admin. Pero el dueño del proyecto en Supabase podría leer cualquier fila desde el panel (*Table Editor*), como pasa con cualquier sistema donde alguien administra la base. Si los banqueros necesitan una garantía total, la opción es cifrar los pendientes privados en el navegador; eso no está hecho.
@@ -146,7 +151,8 @@ supabase/02_configuracion.sql  URL, zona horaria, admin
 supabase/03_recurrentes.sql    tus recurrentes
 supabase/04_emails_apagados.sql  interruptor de emails (apagado)
 supabase/05_restablecer_contrasenas.sql  pedir y restablecer contraseñas sin email
-supabase/functions/            notify (emails), calendar (.ics) y reset-password
+supabase/06_quitar_personas.sql  quitar a alguien de TODOmás
+supabase/functions/            notify (emails), calendar (.ics), reset-password y remove-user
 supabase/pruebas/              pruebas de privacidad del esquema
 ```
 
