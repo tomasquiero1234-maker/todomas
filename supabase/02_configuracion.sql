@@ -1,16 +1,16 @@
 -- =====================================================================
 --  TODOmás · 02_configuracion.sql
---  Cambia los 4 valores marcados con  <<<  y córrelo en el SQL Editor.
+--  Cambia los valores marcados con  <<<  y córrelo en el SQL Editor.
 -- =====================================================================
 
 -- URL de tu proyecto Supabase (Project Settings → API → Project URL)
 insert into public.app_config (key, value)
-values ('project_url', 'https://TU-PROYECTO.supabase.co')            -- <<<
+values ('project_url', 'https://lbyztwnzebkesvhuvdfi.supabase.co')
 on conflict (key) do update set value = excluded.value;
 
 -- URL pública de la app en GitHub Pages (se usa en los links de los emails)
 insert into public.app_config (key, value)
-values ('app_url', 'https://TU-USUARIO.github.io/todomas/')           -- <<<
+values ('app_url', 'https://tomasquiero1234-maker.github.io/todomas/')
 on conflict (key) do update set value = excluded.value;
 
 -- Zona horaria de los recordatorios y recurrentes

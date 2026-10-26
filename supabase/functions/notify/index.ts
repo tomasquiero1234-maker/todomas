@@ -1,11 +1,12 @@
 // TODOmás · función "notify"
-// Manda por Gmail los avisos pendientes (pedido nuevo, done, cambio de fecha,
+// Manda por email los avisos pendientes (pedido nuevo, done, cambio de fecha,
 // cancelación, por vencer y resumen diario). La llama el cron cada minuto,
 // solo cuando hay algo que mandar.
 //
 // Secrets que hay que cargar en Supabase → Edge Functions → Secrets:
-//   GMAIL_USER          la cuenta Gmail que manda los avisos
-//   GMAIL_APP_PASSWORD  su "contraseña de aplicación" (16 letras)
+//   SMTP_USER      la cuenta que manda los avisos (Yahoo, Gmail…)
+//   SMTP_PASSWORD  su "contraseña de aplicación"
+//   SMTP_HOST      smtp.mail.yahoo.com para Yahoo (si no se pone: smtp.gmail.com)
 // Deploy con "Verify JWT" desactivado.
 
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -15,15 +16,16 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_URL")!,
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
-const GMAIL_USER = Deno.env.get("GMAIL_USER") ?? "";
-const GMAIL_APP_PASSWORD = (Deno.env.get("GMAIL_APP_PASSWORD") ?? "").replace(/\s+/g, "");
+const SMTP_HOST = Deno.env.get("SMTP_HOST") || "smtp.gmail.com";
+const SMTP_USER = Deno.env.get("SMTP_USER") || Deno.env.get("GMAIL_USER") || "";
+const SMTP_PASSWORD = (Deno.env.get("SMTP_PASSWORD") || Deno.env.get("GMAIL_APP_PASSWORD") || "").replace(/\s+/g, "");
 
-// Supabase bloquea los puertos 25 y 587: Gmail por SSL en el 465
+// Supabase bloquea los puertos 25 y 587: siempre SSL por el 465
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: SMTP_HOST,
   port: 465,
   secure: true,
-  auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
+  auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
 });
 
 type Lang = "es" | "en";
@@ -208,8 +210,8 @@ const json = (b: unknown, status = 200) =>
   new Response(JSON.stringify(b), { status, headers: { "Content-Type": "application/json" } });
 
 Deno.serve(async () => {
-  if (!GMAIL_USER || !GMAIL_APP_PASSWORD) {
-    return json({ ok: false, error: "Faltan los secrets GMAIL_USER y GMAIL_APP_PASSWORD" }, 500);
+  if (!SMTP_USER || !SMTP_PASSWORD) {
+    return json({ ok: false, error: "Faltan los secrets SMTP_USER y SMTP_PASSWORD" }, 500);
   }
   const { data: cfg } = await supabase.from("app_config").select("key, value");
   const appUrl = (cfg ?? []).find((r) => r.key === "app_url")?.value ?? "";
@@ -226,7 +228,7 @@ Deno.serve(async () => {
     }
     try {
       await transporter.sendMail({
-        from: `"TODOmás" <${GMAIL_USER}>`,
+        from: `"TODOmás" <${SMTP_USER}>`,
         to: row.recipient_email,
         replyTo: row.actor_email ?? undefined,
         subject: mail.subject,

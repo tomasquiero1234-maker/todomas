@@ -1,12 +1,11 @@
 -- =====================================================================
 --  TODOmás · 03_recurrentes.sql
 --  Córrelo DESPUÉS de crear tu cuenta en la app. Carga tus dos
---  pendientes semanales (después los editas en Ajustes → Recurrentes).
---  Cambia el correo marcado con  <<<
+--  pendientes semanales al admin (después los editas en Ajustes → Recurrentes).
 -- =====================================================================
 
 with yo as (
-  select id from public.profiles where email = lower('tu.correo@empresa.com')   -- <<<
+  select id from public.profiles where role = 'admin' order by created_at limit 1
 )
 insert into public.recurring_tasks (owner_id, title, detail, weekday, due_time, priority)
 select yo.id, v.title, v.detail, v.weekday, v.due_time::time, v.priority
@@ -17,3 +16,7 @@ from yo, (values
 where not exists (
   select 1 from public.recurring_tasks r where r.owner_id = yo.id and r.title = v.title
 );
+
+-- Verificación
+select r.title as recurrente, r.weekday as dia, to_char(r.due_time, 'HH24:MI') as hora
+from public.recurring_tasks r order by r.weekday;

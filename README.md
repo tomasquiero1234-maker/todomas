@@ -41,16 +41,18 @@ En **Authentication**:
 1. **Sign In / Providers → Email:** deja Email activado y **desactiva "Confirm email"**. Solo pueden registrarse los correos que invites, así que no hace falta confirmar.
 2. **URL Configuration:** en *Site URL* y en *Redirect URLs* pon la URL de la app, por ejemplo `https://tomasquiero1234-maker.github.io/todomas/`.
 
-### 4. Gmail para mandar los avisos
-1. Crea una cuenta Gmail nueva solo para esto, por ejemplo `todomas.avisos@gmail.com`.
-2. Activa la **verificación en 2 pasos** de esa cuenta.
-3. Crea una **contraseña de aplicación** en https://myaccount.google.com/apppasswords. Son 16 letras: guárdalas, no las pegues en ningún chat.
-4. En Supabase, **Authentication → Emails → SMTP Settings**, activa *Custom SMTP* con estos datos. Sirve para que llegue el mail de "olvidé mi contraseña":
-   - Host: `smtp.gmail.com`
-   - Port: `465`
-   - User: la cuenta Gmail
-   - Password: la contraseña de aplicación
-   - Sender name: `TODOmás`
+### 4. Cuenta que manda los avisos
+Sirve cualquier correo que permita "contraseñas de aplicación" y SMTP por el puerto 465. Supabase bloquea el 587, así que Outlook e iCloud no sirven.
+
+- **Yahoo (recomendado):** crea una cuenta, por ejemplo `todomas.avisos@yahoo.com`. Después ve a *Account security → Generate app password* y crea una con el nombre `TODOmás`.
+- **Gmail:** activa la verificación en 2 pasos y crea la contraseña de aplicación en https://myaccount.google.com/apppasswords.
+
+Guarda la contraseña de aplicación en el Llavero y no la pegues en ningún chat. Después, en Supabase, **Authentication → Emails → SMTP Settings**, activa *Custom SMTP*. Esto sirve para el mail de "olvidé mi contraseña":
+- **Host:** `smtp.mail.yahoo.com` (o `smtp.gmail.com`)
+- **Port:** `465`
+- **User:** la cuenta
+- **Password:** la contraseña de aplicación
+- **Sender name:** `TODOmás`
 
 ### 5. Las dos funciones: emails y calendario
 En Supabase, **Edge Functions → Deploy a new function → Via editor**:
@@ -58,8 +60,9 @@ En Supabase, **Edge Functions → Deploy a new function → Via editor**:
 2. Crea otra llamada **`calendar`** con `supabase/functions/calendar/index.ts`.
 3. En la configuración de **cada una**, desactiva **"Verify JWT"** (o "Enforce JWT verification").
 4. En **Edge Functions → Secrets**, agrega:
-   - `GMAIL_USER`: la cuenta Gmail.
-   - `GMAIL_APP_PASSWORD`: la contraseña de aplicación.
+   - `SMTP_USER`: la cuenta que manda.
+   - `SMTP_PASSWORD`: su contraseña de aplicación.
+   - `SMTP_HOST`: `smtp.mail.yahoo.com` si es Yahoo. Si es Gmail no hace falta.
 
 ### 6. Conectar la página y publicarla
 1. En `config.js` pega:
@@ -114,7 +117,7 @@ Los comentarios solo avisan dentro de la app. Todo funciona en hora de Chile.
 - **El panel de Supabase ve todo.** Dentro de la app nadie ve los privados de otros, tampoco el admin. Pero el dueño del proyecto en Supabase podría leer cualquier fila desde el panel (*Table Editor*), como pasa con cualquier sistema donde alguien administra la base. Si los banqueros necesitan una garantía total, la opción es cifrar los pendientes privados en el navegador; eso no está hecho.
 - **Información de clientes:** se acordó no subir datos sensibles. Archivos: máximo 10 MB cada uno y 1 GB en total en el plan gratis.
 - **Plan gratis de Supabase:** si el proyecto pasa una semana sin uso, Supabase lo puede pausar. Se reactiva con un clic desde el panel.
-- **Emails desde Gmail:** el primero puede caer en spam; márquenlo como "no es spam". Si el correo del banco los bloquea, hay que probar con otro remitente.
+- **Emails:** el primero puede caer en spam; márquenlo como "no es spam". Si el correo del banco los bloquea, hay que probar con otro remitente o con un dominio propio.
 - **Google Calendar** actualiza los calendarios por URL cada algunas horas, no al instante. Para algo puntual, cada ficha tiene el botón *Google Calendar*.
 
 ## Estructura

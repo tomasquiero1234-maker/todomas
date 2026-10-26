@@ -10,7 +10,7 @@
 // =====================================================================
 
 export const CONFIG = {
-  supabaseUrl: '',   // ej: 'https://abcdefgh.supabase.co'
-  supabaseKey: '',   // la "anon public" o "publishable" key
+  supabaseUrl: 'https://lbyztwnzebkesvhuvdfi.supabase.co',
+  supabaseKey: 'sb_publishable_DxrX2aNRJHvx-nGGVuYlLQ_YJRbMYbr',   // la "anon public" o "publishable" key
   timezone: 'America/Santiago',
 };
